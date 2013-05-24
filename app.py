@@ -2,6 +2,7 @@
 from bottle import Bottle, route, run, static_file, request
 from mako.template import Template
 import googlesearch
+import bingsearch
 import pdb
 
 
@@ -22,8 +23,9 @@ def results_get():
 @route('/results', method='POST')
 def results():
     query = request.forms.decode().get('query')
-    items = googlesearch.simple_search(query)
-    return template.render(items=items)
+    #google_items = googlesearch.simple_search(query)[0]
+    bing_items = bingsearch.simple_search(query)[0]
+    return template.render(items=bing_items)
 
 
 @route('/')
