@@ -8,7 +8,7 @@ import pdb
 
 def simple_search(query):
     NUM = 1
-    key = 'd8UCcfqGTiuke8wAxdnI0wDG4W0GLQSbC37NjI1K9lc'
+    key = 'd8UCcfqGTiuke8wAxdnI0wDG4W0GLQSbC37NjI1K9lca8'
     url = 'https://api.datamarket.azure.com/Bing/Search/Web?'
     json_param = '&$format=json'
     param = {
