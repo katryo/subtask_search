@@ -35,11 +35,19 @@
       </div>
       <div class="span8 offset2">
         <ul class="unstyled">
+          <!--viewで分岐は気持ち悪いけど直すのめんどい-->
         % for item in items:
         <li>
+          % if 'Url' in item:
           <a href= ${item['Url']}>
             ${item['Title']}
           </a>
+          % endif
+          % if 'link' in item:
+          <a href= ${item['link']}>
+            ${item['title']}
+          </a>
+          % endif
         </li>
     % endfor
   </ul>
