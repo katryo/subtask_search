@@ -1,9 +1,8 @@
-#! /usr/bin/python
-# -*- coding:utf-8 -*-
 import urllib
 import urllib.request
 import urllib.parse
 import json
+import pdb
 
 
 def simple_search(query):
@@ -19,6 +18,7 @@ def simple_search(query):
         'alt': 'json',
         'lr': 'lang_ja', }
     start = 1
+    items = []
 
     for i in range(0, NUM):
         params['start'] = start
@@ -26,10 +26,11 @@ def simple_search(query):
         try:
             response = urllib.request.urlopen(request_url)
             json_body = json.loads(response.read().decode('utf-8'))
-            items = json_body['items']
+            items.append(json_body['items'])
+            if not 'nextPage' in json_body['queries']:
+                break
+            start = json_body['queries']['nextPage'][0]['startIndex']
         except:
             print('Error')
 
     return items
-    #for i in range(0, 10):
-        #print(items[i]['title'] + items[i]['link'])
