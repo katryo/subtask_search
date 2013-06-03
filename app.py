@@ -32,7 +32,7 @@ def results():
         results = []
         words = [
             'を使う', 'しましょう', 'ください', '下さい', 'がおすすめ', 'がオススメ',
-            'を選ぶ', 'すれば'
+            'を選ぶ'
         ]
         for item in items:
             link_and_texts = Scraper.find_word(item['link'], words)

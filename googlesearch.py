@@ -9,7 +9,7 @@ import my_keys
 def simple_search(query):
     QUERY = query
     API_KEY = my_keys.google_api_key()
-    NUM = 5
+    NUM = 10
 
     url = 'https://www.googleapis.com/customsearch/v1?'
     params = {
