@@ -1,3 +1,16 @@
 .center {
 	text-align:center;
 }
+.search_option {
+	display: block;
+	margin-bottom: 4%;
+}
+.radio_option {
+	display: inline;
+}
+label.radio_label {
+	display: inline;
+}
+input[type="radio"] {
+	margin: 0;
+}

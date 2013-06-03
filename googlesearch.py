@@ -9,7 +9,7 @@ import my_keys
 def simple_search(query):
     QUERY = query
     API_KEY = my_keys.google_api_key()
-    NUM = 1
+    NUM = 5
 
     url = 'https://www.googleapis.com/customsearch/v1?'
     params = {
@@ -27,11 +27,10 @@ def simple_search(query):
         try:
             response = urllib.request.urlopen(request_url)
             json_body = json.loads(response.read().decode('utf-8'))
-            items.append(json_body['items'])
+            items.extend(json_body['items'])
             if not 'nextPage' in json_body['queries']:
                 break
             start = json_body['queries']['nextPage'][0]['startIndex']
         except:
             print('Error')
-
     return items

@@ -20,6 +20,6 @@ def simple_search(query):
 
     for i in range(0, NUM):
         json_body = requests.get(req_url + json_param, auth=(key, key)).json()
-        items.append(json_body['d']['results'])
+        items.extend(json_body['d']['results'])
         req_url = json_body['d']['__next']
     return(items)
