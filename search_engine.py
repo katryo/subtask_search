@@ -8,15 +8,16 @@ import requests
 
 
 class SearchEngine:
-    def google_search(query):
-        QUERY = query
-        API_KEY = my_keys.google_api_key()
-        NUM = 3
+    def __init__(self):
+        self.microsoft_api_key = my_keys.microsoft_api_key()
+        self.google_api_key = my_keys.google_api_key()
 
+    def google_search(self, query):
+        NUM = 10
         url = 'https://www.googleapis.com/customsearch/v1?'
         params = {
-            'key': API_KEY,
-            'q': QUERY,
+            'key': self.google_api_key,
+            'q': query,
             'cx': '013036536707430787589:_pqjad5hr1a',
             'alt': 'json',
             'lr': 'lang_ja',
@@ -38,9 +39,9 @@ class SearchEngine:
                 items.extend({'link': '#', 'title': '検索できませんでした'})
         return items
 
-    def bing_search(query):
+    def bing_search(self, query):
         NUM = 1
-        key = my_keys.microsoft_api_key()
+        key = self.microsoft_api_key
         url = 'https://api.datamarket.azure.com/Bing/Search/Web?'
         json_param = '&$format=json'
         param = {
@@ -56,4 +57,9 @@ class SearchEngine:
                 req_url = json_body['d']['__next']
             except:
                 items.extend({'Url': '#', 'Title': '検索できませんでした'})
+
+        for item in items:
+            item['link'] = item['Url']
+            item['title'] = item['Title']
+
         return(items)
