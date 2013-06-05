@@ -2,18 +2,15 @@ import pdb
 import MeCab
 from pyquery import PyQuery as pq
 import urllib.robotparser
+from urllib.parse import urljoin
 import requests
 import re
 import cgi
 
 
 class Scraper:
-    def __init__(self, url):
-        self.url = url
-        self.rp = urllib.robotparser.RobotFileParser()
-
-    def find_ad_texts(self):
-        response = requests.get(self.url)
+    def fetch_ads(self, url):
+        response = requests.get(url)
         html = response.text
         nlist = pq(html).find('.nlist')
         lis = nlist.children().children()
@@ -21,15 +18,14 @@ class Scraper:
         for li in lis:
             pq_li = pq(li)
             ad_title = pq_li.find('a').text()
+            link = pq_li.find('a').attr('href')
             ad_text = pq_li.find('.yschabstr').text()
-            link = pq_li.find('em').text()
             item = {'ad_title': ad_title, 'ad_text': ad_text, 'link': link}
             items.append(item)
-
         return items
 
-    def find_words(self, words):
-        response = requests.get(self.url)
+    def find_words(self, words, url):
+        response = requests.get(url)
         txt = response.text
         matched_texts = []
         black_words = [
@@ -55,7 +51,8 @@ class Scraper:
             '利用規約</a>を参照してください',
             'メニューを入れてください',
             'エリア、都道府県を選択してください',
-            '観光地を選択してください'
+            '観光地を選択してください',
+            '+1 ボタン を表示したい位置に次のタグを貼り付けてください'
         ]
         break_words = [
             '。', '<p>', '<br />', '<br>'
@@ -88,5 +85,5 @@ class Scraper:
 
                     matched_text = cgi.escape(matched_text, quote=True)
                     matched_texts.append(matched_text)
-        link_and_texts = {'link': self.url, 'texts': matched_texts}
+        link_and_texts = {'link': url, 'texts': matched_texts}
         return link_and_texts

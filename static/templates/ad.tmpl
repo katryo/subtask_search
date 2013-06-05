@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block results %}
+<ul class="unstyled">
+  <!--viewで分岐は気持ち悪いけど直すのめんどい-->
+  {% for item in items %}
+  <li>
+    <a href= ${item['link']}>
+      <h4>{{item['ad_title']}}</h4>
+    </a> 
+    <p>{{item['ad_text']}}</p>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

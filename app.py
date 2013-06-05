@@ -1,16 +1,20 @@
 #coding: utf-8
 from bottle import Bottle, route, run, static_file, request
-from mako.template import Template
+#from mako.template import Template
+#from mako.lookup import TemplateLookup
 from search_engine import SearchEngine
 from query_converter import Converter
+from jinja2 import Environment, FileSystemLoader
 from scraper import Scraper
 import requests
 from urllib.parse import urljoin
 import pdb
 
-
-template = Template(filename='static/templates/index.tmpl')
-sponsered_add_template = Template(filename='static/templates/sponsered_ad_template.tmpl')
+env = Environment(loader=FileSystemLoader('static/templates'))
+template = env.get_template('index.tmpl')
+results_template = env.get_template('results.tmpl')
+ad_template = env.get_template('ad.tmpl')
+#sponsered_add_template = Template(filename='static/templates/sponsered_ad_template.tmpl')
 app = Bottle()
 
 
@@ -19,15 +23,15 @@ def static(path):
     return static_file(path, root='static')
 
 
-@route('/yahoo_sponsored_results')
+@route('/yahoo_sponsored_results', method='POST')
 def yahoo_sponsored_results():
     query = request.forms.decode().get('query')
     head = 'http://search.yahoo.co.jp/search/ss?p='
     tail = '&ei=UTF-8&fr=top_ga1_sa&type=websearch&x=drt'
     url = head + query + tail
-    scraper = Scraper(url)
-    items = scraper.find_ad_texts()
-    return sponsered_add_template.render(items=items)
+    scraper = Scraper()
+    items = scraper.fetch_ads(url)
+    return ad_template.render(items=items)
 
 
 @route('/results')
@@ -53,18 +57,18 @@ def results():
         'を選ぶ', 'してみては', 'するのがいい', 'するのがよい', 'するのが良い'
     ]
     for item in items:
-        scraper = Scraper(item['link'])
-        link_and_texts = scraper.find_words(words)
+        scraper = Scraper()
+        link_and_texts = scraper.find_words(words, item['link'])
         link_and_texts['title'] = item['title']
         if link_and_texts['texts'] == []:
             continue
         else:
             results.append(link_and_texts)
 
-    return template.render(items=results)
+    return results_template.render(items=results)
 
 
 @route('/')
 def greet():
-    return template.render(items='')
+    return template.render()
 run(host='localhost', port=1234, debug=True)

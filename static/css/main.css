@@ -14,3 +14,7 @@ label.radio_label {
 input[type="radio"] {
 	margin: 0;
 }
+
+li{
+margin: 4% 0;
+}
