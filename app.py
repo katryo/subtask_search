@@ -10,7 +10,7 @@ import pdb
 
 
 template = Template(filename='static/templates/index.tmpl')
-sponsered_add_template = Template(filename='static/templates/sponsered_add_template.tmpl')
+sponsered_add_template = Template(filename='static/templates/sponsered_ad_template.tmpl')
 app = Bottle()
 
 
