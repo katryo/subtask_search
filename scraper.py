@@ -6,9 +6,20 @@ from urllib.parse import urljoin
 import requests
 import re
 import cgi
+from constants import Constants
 
 
 class Scraper:
+    def fetch_ad_texts(self, url):
+        items = self.fetch_ads(url)
+        results = []
+        for item in items:
+            words = Constants.TASK_WORDS
+            link_and_texts = self.find_words(words, item['link'])
+            link_and_texts['title'] = item['ad_title']
+            results.append(link_and_texts)
+        return results
+
     def fetch_ads(self, url):
         response = requests.get(url)
         html = response.text
@@ -28,32 +39,7 @@ class Scraper:
         response = requests.get(url)
         txt = response.text
         matched_texts = []
-        black_words = [
-            'ログイン', 'サインイン', 'カート', '検索キーワード', '検索したい単語',
-            'javascript', 'JavaScript', 'Javascript',
-            'ボタンを押してください', '勝利馬券をゲット', '教えて', '助けて', '責任',
-            'ご覧ください', 'JAPAN ID', '入力して', '無断転載', 'リンクを参照', '回答',
-            'ノートに戻り、もう一度やり直してください', 'ページで登録されているノートを削除してください',
-            'プレビューボタン', '注文手続きの際にお申し込み', 'Kindle化をご希望の場合',
-            '</ul> <br /> <strong> 必ずお読みください', 'エラーが発生しました。やり直してください',
-            '>もう一度試してください', '意見交換を通じて、お買い物にお役立てください',
-            'Amazon.co.jp</a></b> が販売、発送します',
-            'この機能は現在利用できません。しばらくしてからもう一度お試しください',
-            '不適切な項目が含まれていることもあります。ご了承ください',
-            'このユーザーのブロックを解除します', 'このユーザーをブロックします',
-            '呼び出しを適切な位置に挿入してください',
-            'このタグを +1 ボタンを表示する場所に挿入してください',
-            '参考にしてみてください',
-            'このトピックについて、他の呼び方、通称などがあれば登録してください',
-            'メモやコメントの追加はここをクリックして下さい',
-            'ノート</a>を参照してください',
-            'この操作を実行するには、プライバシー設定を変更してください',
-            '利用規約</a>を参照してください',
-            'メニューを入れてください',
-            'エリア、都道府県を選択してください',
-            '観光地を選択してください',
-            '+1 ボタン を表示したい位置に次のタグを貼り付けてください'
-        ]
+        black_words = Constants.BLACK_WORDS
         break_words = [
             '。', '<p>', '<br />', '<br>'
         ]

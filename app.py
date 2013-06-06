@@ -30,7 +30,7 @@ def yahoo_sponsored_results():
     tail = '&ei=UTF-8&fr=top_ga1_sa&type=websearch&x=drt'
     url = head + query + tail
     scraper = Scraper()
-    items = scraper.fetch_ads(url)
+    items = scraper.fetch_ad_texts(url)
     return ad_template.render(items=items)
 
 

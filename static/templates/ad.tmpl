@@ -5,9 +5,13 @@
   {% for item in items %}
   <li>
     <a href= ${item['link']}>
-      <h4>{{item['ad_title']}}</h4>
-    </a> 
-    <p>{{item['ad_text']}}</p>
+      <h4>{{item['title']}}</h4>
+    </a>
+    <ul>
+        {% for text in item['texts'] %}
+        <li>{{text}}</li>
+        {% endfor %}
+    </ul>
   </li>
   {% endfor %}
 </ul>
