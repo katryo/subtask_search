@@ -45,12 +45,19 @@
       </div>
     </form>
 
+    <form action="/free_scraping_results" method="post">
+    <div class="search_option">
+      <input type="search" name="url" value placeholder="Input URL" class="span4 offset4" />
+      <input type="submit" value="Free scraping" class="btn btn-primary btn-large"/>
+    </div>
+  </form>
 
     <form action="/yahoo_sponsored_results" method="post">
     <div class="search_option">
       <input type="search" name="query" value placeholder="Input your task" class="span4 offset4" />
       <input type="submit" value="Search by ads" class="btn btn-primary btn-large"/>
     </div>
+  </form>
     {% block results %}
     {% endblock %}
       </div>

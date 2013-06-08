@@ -14,6 +14,7 @@ env = Environment(loader=FileSystemLoader('static/templates'))
 template = env.get_template('index.tmpl')
 results_template = env.get_template('results.tmpl')
 ad_template = env.get_template('ad.tmpl')
+free_scraping_template = env.get_template('free.tmpl')
 #sponsered_add_template = Template(filename='static/templates/sponsered_ad_template.tmpl')
 app = Bottle()
 
@@ -67,6 +68,12 @@ def results():
 
     return results_template.render(items=results)
 
+@route('/free_scraping_results', method='POST')
+def free_scraping_results():
+    url = request.forms.decode().get('url')
+    scraper = Scraper()
+    items = scraper.fetch_something(url)
+    return free_scraping_template.render(items=items)
 
 @route('/')
 def greet():

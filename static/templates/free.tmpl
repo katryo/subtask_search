@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block results %}
+<ul class="unstyled">
+  <!--viewで分岐は気持ち悪いけど直すのめんどい-->
+  {% for item in items %}
+  <li>
+    {{ item }}
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

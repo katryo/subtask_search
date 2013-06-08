@@ -20,6 +20,19 @@ class Scraper:
             results.append(link_and_texts)
         return results
 
+    def fetch_something(self, url):
+        response = requests.get(url)
+        html = response.text
+        text = pq(html).find('td>a>font').text()
+        words = text.split(' ')
+        normalized_words = []
+        for word in words:
+            word = word.lower()
+            word = word.replace('_', '-')
+            word = word + ','
+            normalized_words.append(word)
+        return normalized_words
+
     def fetch_ads(self, url):
         response = requests.get(url)
         html = response.text
