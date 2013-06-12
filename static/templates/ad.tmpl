@@ -4,14 +4,7 @@
   <!--viewで分岐は気持ち悪いけど直すのめんどい-->
   {% for item in items %}
   <li>
-    <a href= ${item['link']}>
-      <h4>{{item['title']}}</h4>
-    </a>
-    <ul>
-        {% for text in item['texts'] %}
-        <li>{{text}}</li>
-        {% endfor %}
-    </ul>
+    {{ item['name'] }} | {{ item['count'] }}回
   </li>
   {% endfor %}
 </ul>

@@ -7,18 +7,83 @@ import requests
 import re
 import cgi
 from constants import Constants
+from analyzer import Analyzer  # scraperからanalyzer参照する。逆はしない
+from mecabed_word import MecabedWord
 
 
 class Scraper:
-    def fetch_ad_texts(self, url):
-        items = self.fetch_ads(url)
-        results = []
+    def to_texts(self, items):
+        m_word_collection = []
+        analyzer = Analyzer()
         for item in items:
-            words = Constants.TASK_WORDS
-            link_and_texts = self.find_words(words, item['link'])
-            link_and_texts['title'] = item['ad_title']
-            results.append(link_and_texts)
+            html = self.fetch_html(item['link'])
+            text = re.sub('<[^<]+?>', '', html)
+            text = re.sub('(,|\.|#|\"|\/|:|{|})', '', text)
+            m_words = analyzer.to_m_words(text)
+            m_word_collection.extend(m_words)
+        task_words = []
+        for m_word in m_word_collection:
+            if m_word.type == '動詞' or m_word.subtype == 'サ変接続':
+                task_words.append(m_word.name)
+        results = analyzer.to_ranked_items(task_words)
         return results
+
+    def fetch_title_vs(self, url):
+        items = self.fetch_ads(url)
+        verbs = []
+        sahens = []
+        analyzer = Analyzer()
+        for item in items:
+            verbs.extend(analyzer.pick_verbs(item['title']))
+            sahens.extend(analyzer.pick_sahens(item['title']))
+        results = verbs + sahens
+        return results
+
+    def fetch_snippets_nvs(self, url):
+        items = self.fetch_ads(url)
+        nouns = []
+        verbs = []
+        sahens = []
+        analyzer = Analyzer()
+        for item in items:
+            snippet_nouns = analyzer.pick_nouns(item['snippet'])
+            snippet_verbs = analyzer.pick_verbs(item['snippet'])
+            snippet_sahens = analyzer.pick_sahens(item['snippet'])
+            nouns.extend(snippet_nouns)
+            verbs.extend(snippet_verbs)
+            sahens.extend(snippet_sahens)
+
+        nvs = {'nouns': nouns, 'verbs': verbs, 'sahens': sahens}
+        return nvs
+
+    def fetch_ad_pages_nvs(self, url):
+        texts = self.fetch_ad_pages(url)
+        nouns = []
+        verbs = []
+        sahens = []
+        analyzer = Analyzer()
+        for text in texts:
+            nouns.extend(analyzer.pick_nouns(text))
+            verbs.extend(analyzer.pick_verbs(text))
+            sahens.extend(analyzer.pick_sahens(text))
+        nvs = {'nouns': nouns, 'verbs': verbs, 'sahens': sahens}
+        return nvs
+
+    def fetch_ad_pages(self, url):
+        items = self.fetch_ads(url)
+        texts = []
+        words = Constants.TASK_WORDS
+        for item in items:
+            texts_in_one_page = self.find_words(words, item['link'])
+            #texts_in_one_page => ['水がおすすめ', '気をつけてください']
+            texts.extend(texts_in_one_page)
+        #texts => ['!!! 気をつけてください !!!', 'ここをクリックして新製品を使う', '深呼吸してみては']
+        return texts
+
+    def fetch_html(self, url):
+        response = requests.get(url)
+        html = response.text
+        return html
 
     def fetch_something(self, url):
         response = requests.get(url)
@@ -29,7 +94,7 @@ class Scraper:
         for word in words:
             word = word.lower()
             word = word.replace('_', '-')
-            word = word + ','
+            word = '"' + word + '",'
             normalized_words.append(word)
         return normalized_words
 
@@ -43,10 +108,20 @@ class Scraper:
             pq_li = pq(li)
             ad_title = pq_li.find('a').text()
             link = pq_li.find('a').attr('href')
-            ad_text = pq_li.find('.yschabstr').text()
-            item = {'ad_title': ad_title, 'ad_text': ad_text, 'link': link}
+            ad_snippet = pq_li.find('.yschabstr').text()
+            item = {'title': ad_title, 'snippet': ad_snippet, 'link': link}
             items.append(item)
         return items
+
+    def pick_vs(self, url):
+        response = requests.get(url)
+        text = response.text
+        analyzer = Analyzer()
+        verbs = analyzer.pick_verbs(text)
+        sahens = analyzer.pick_sahens(text)
+        results = verbs + sahens
+        return results
+
 
     def find_words(self, words, url):
         response = requests.get(url)
@@ -84,5 +159,4 @@ class Scraper:
 
                     matched_text = cgi.escape(matched_text, quote=True)
                     matched_texts.append(matched_text)
-        link_and_texts = {'link': url, 'texts': matched_texts}
-        return link_and_texts
+        return matched_texts

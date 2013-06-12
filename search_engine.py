@@ -10,11 +10,11 @@ import requests
 
 class SearchEngine:
     def __init__(self):
-        self.microsoft_api_key = my_keys.microsoft_api_key()
-        self.google_api_key = my_keys.google_api_key()
+        self.microsoft_api_key = my_keys.MICROSOFT_API_KEY
+        self.google_api_key = my_keys.GOOGLE_API_KEY
 
-    def google_search(self, query):
-        NUM = 10
+    def google_search(self, query, num):
+        NUM = num
         url = 'https://www.googleapis.com/customsearch/v1?'
         params = {
             'key': self.google_api_key,
@@ -38,7 +38,7 @@ class SearchEngine:
                 start = json_body['queries']['nextPage'][0]['startIndex']
             except:
                 items.extend({'link': '#', 'title': '検索できませんでした'})
-        return items
+        return items  #=> [{'link': 'http://...', 'title': 'ページは'}, {...}...]
 
     def bing_search(self, query):
         NUM = 1
