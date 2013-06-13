@@ -8,9 +8,11 @@ class Ad(WebItem):
         self.title = args['title']
         self.snippet = args['snippet']
         self.link = args['link']
+        #linkは広告のWebページURLではなくyahooのURLを経由
 
     def fetch_html(self):
         response = requests.get(self.link)
+        #linkはyahooのURLだがレスポンスは広告元のページ
         self.html = response.text
 
     def fetch_ad_pages(self):

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block results %}
+<h3>拡張したクエリ</h3>
+<ul class="unstyled">
+    {% for query in queries %}
+    <li>{{ query }}</li>
+    {% endfor %}
+</ul>
+<ul class="unstyled">
+  <!--viewで分岐は気持ち悪いけど直すのめんどい-->
+  {% for page in pages %}
+  <li>
+    <a href="{{ page.url }}"><h4>{{ page.title }}</h4></a>
+    <p>{{ page.snippet }}</p>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -52,6 +52,23 @@
     </div>
   </form>
 
+    <form action="/query_expansion" method="post">
+    <div class="search_option">
+      <input type="search" name="query" value placeholder="Input your task" class="span4 offset4" />
+      <input type="submit" value="Expand query by ads!" class="btn btn-primary btn-large"/>
+    </div>
+      <div class="search_option">
+        <span class="radio_option">
+      <input id="google" type="radio" name="search_engine" value="google" checked><label class="radio_label" for="google"> Google</label>
+      </span>
+      </div>
+      <div class="search_option">
+                <span class="radio_option">
+      <input id="bing" type="radio" name="search_engine" value="bing"><label class="radio_label" for="bing"> Bing</label>
+    </span>
+      </div>
+  </form>
+
     <form action="/yahoo_sponsored_results" method="post">
     <div class="search_option">
       <input type="search" name="query" value placeholder="Input your task" class="span4 offset4" />

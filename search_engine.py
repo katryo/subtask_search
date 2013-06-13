@@ -4,7 +4,6 @@ import urllib.parse
 import json
 import pdb
 import my_keys
-import constants
 import requests
 from web_page import WebPage
 
@@ -47,8 +46,8 @@ class SearchEngine:
             pages.append(page)
         return pages  # => [{'link': 'http://...', 'title': 'ページは'}, {...}...]
 
-    def bing_search(self, query):
-        NUM = 1
+    def bing_search(self, query, num):
+        NUM = num
         key = self.microsoft_api_key
         url = 'https://api.datamarket.azure.com/Bing/Search/Web?'
         json_param = '&$format=json'
@@ -57,7 +56,6 @@ class SearchEngine:
         }
         req_url = url + urllib.parse.urlencode(param)
         items = []
-
         for i in range(0, NUM):
             try:
                 json_body = requests.get(req_url + json_param, auth=(key, key)).json()
@@ -65,9 +63,11 @@ class SearchEngine:
                 req_url = json_body['d']['__next']
             except:
                 items.extend({'Url': '#', 'Title': '検索できませんでした'})
-
+        pages = []
         for item in items:
-            item['link'] = item['Url']
-            item['title'] = item['Title']
-
-        return(items)
+            page = WebPage(item['Url'])
+            #googleの書き方に統一
+            page.title = item['Title']
+            page.snippet = item['Description']
+            pages.append(page)
+        return pages

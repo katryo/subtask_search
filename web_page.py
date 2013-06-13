@@ -6,10 +6,12 @@ from web_item import WebItem
 
 class WebPage(WebItem):
     def __init__(self, url):
+        self.url = url
         response = requests.get(url)
         self.html = response.text
 
     def pick_something(self):
+        #多目的用途。研究には使わない。自由に書きかえて大丈夫
         text = pq(self.html).find('td>a>font').text()
         words = text.split(' ')
         normalized_words = []
