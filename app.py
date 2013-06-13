@@ -9,6 +9,8 @@ from converter import Converter
 from jinja2 import Environment, FileSystemLoader
 from scraper import Scraper
 from constants import Constants
+from web_page import WebPage
+from ad import Ad
 import requests
 from urllib.parse import urljoin
 import pdb
@@ -37,14 +39,56 @@ def yahoo_sponsored_results():
     head = 'http://search.yahoo.co.jp/search/ss?p='
     tail = '&ei=UTF-8&fr=top_ga1_sa&type=websearch&x=drt'
     url = head + converted_query + tail
-    scraper = Scraper()
-    title_vs = scraper.fetch_title_vs(url)
-    snippet_nvs = scraper.fetch_snippets_nvs(url)
-    pages_nvs = scraper.fetch_ad_pages_nvs(url)
-    items = snippet_nvs['sahens'] + snippet_nvs['verbs'] + pages_nvs['sahens'] + pages_nvs['verbs'] + title_vs
-    analyzer = Analyzer()
-    ranked_items = analyzer.to_ranked_items(items)
-    return ad_template.render(items=ranked_items)
+    y_ad_page = WebPage(url)
+    ads = y_ad_page.fetch_ads()
+    v_and_s = []
+    for ad in ads:
+        v_and_s.extend(ad.pick_verbs(ad.title))
+        v_and_s.extend(ad.pick_sahens(ad.title))
+        v_and_s.extend(ad.pick_verbs(ad.snippet))
+        v_and_s.extend(ad.pick_sahens(ad.snippet))
+    results = to_ranked_items(v_and_s)
+    #analyzer = Analyzer()
+    #ranked_items = analyzer.to_ranked_items(items)
+    return ad_template.render(items=results)
+
+
+def to_ranked_items(items):
+    rank_dict = {}
+    #items => ['対策', '鼻炎', '対策', 'うるおい', ...]
+    for item in items:
+        if item in rank_dict.keys():
+            rank_dict[item] += 1
+        else:
+            rank_dict[item] = 1
+    #rank_dict => {'対策': 2, '鼻炎': 1, ...}
+    keys = rank_dict.keys()  # => ['対策', '鼻炎', ...]
+    results = []
+    for key in keys:
+        count = rank_dict[key]  # => 2
+        result = {'name': key, 'count': count}
+        results.append(result)
+    #results => [{'name': '対策', 'count': 2},  ....]
+    outputs = divide_by_count(results)
+    return outputs
+
+
+def divide_by_count(items):
+    high_items = []
+    middle_items = []
+    low_items = []
+    for item in items:
+        if item['count'] > 2:
+            high_items.append(item)
+        elif item['count'] == 2:
+            middle_items.append(item)
+        else:
+            low_items.append(item)
+    outputs = []
+    outputs.extend(high_items)
+    outputs.extend(middle_items)
+    outputs.extend(low_items)
+    return outputs
 
 
 @route('/results')

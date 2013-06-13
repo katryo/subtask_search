@@ -122,7 +122,6 @@ class Scraper:
         results = verbs + sahens
         return results
 
-
     def find_words(self, words, url):
         response = requests.get(url)
         txt = response.text
