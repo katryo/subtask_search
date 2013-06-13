@@ -1,18 +1,11 @@
-
 #coding: utf-8
 from bottle import Bottle, route, run, static_file, request
 #from mako.template import Template
 #from mako.lookup import TemplateLookup
 from search_engine import SearchEngine
-from analyzer import Analyzer
-from converter import Converter
 from jinja2 import Environment, FileSystemLoader
-from scraper import Scraper
-from constants import Constants
 from web_page import WebPage
-from ad import Ad
-import requests
-from urllib.parse import urljoin
+from web_item import WebItem
 import pdb
 
 env = Environment(loader=FileSystemLoader('static/templates'))
@@ -33,12 +26,10 @@ def static(path):
 @route('/yahoo_sponsored_results', method='POST')
 def yahoo_sponsored_results():
     query = request.forms.decode().get('query')
-    converter = Converter()
-    words = converter.split_janapese_query(query)
-    converted_query = ''.join(words)
+    #yahooスポンサードサーチは単語ごとに区切るより一文にしたほうが広告出やすい
     head = 'http://search.yahoo.co.jp/search/ss?p='
     tail = '&ei=UTF-8&fr=top_ga1_sa&type=websearch&x=drt'
-    url = head + converted_query + tail
+    url = head + query + tail
     y_ad_page = WebPage(url)
     ads = y_ad_page.fetch_ads()
     v_and_s = []
@@ -48,8 +39,6 @@ def yahoo_sponsored_results():
         v_and_s.extend(ad.pick_verbs(ad.snippet))
         v_and_s.extend(ad.pick_sahens(ad.snippet))
     results = to_ranked_items(v_and_s)
-    #analyzer = Analyzer()
-    #ranked_items = analyzer.to_ranked_items(items)
     return ad_template.render(items=results)
 
 
@@ -100,51 +89,30 @@ def results_get():
 def results():
     query = request.forms.decode().get('query')
     search_engine = request.forms.get('search_engine')
-    analyzer = Analyzer()
-    keywords = analyzer.pick_nouns_and_verbs(query)
+    web_item = WebItem()
+    keywords = web_item.pick_nouns_and_verbs(query)
     query = ' '.join(keywords)
     engine = SearchEngine()
     if search_engine == 'google':
-        items = engine.google_search(query, 1)
+        pages = engine.google_search(query, 1)
     elif search_engine == 'bing':
         items = engine.bing_search(query)
-    words = get_snippet_and_title(items)
-    results = analyzer.to_ranked_items(words)
+    v_and_s = []
+    for page in pages:
+        v_and_s.extend(page.pick_verbs(page.title))
+        v_and_s.extend(page.pick_sahens(page.title))
+        v_and_s.extend(page.pick_verbs(page.snippet))
+        v_and_s.extend(page.pick_sahens(page.snippet))
+
+    results = to_ranked_items(v_and_s)
     return sahen_google_template.render(items=results)
-
-
-def get_snippet_and_title(items):
-    analyzer = Analyzer()
-    m_words = []
-    for item in items:
-        snippet = item['snippet']
-        m_words.extend(analyzer.pick_verbs(snippet))
-        m_words.extend(analyzer.pick_sahens(snippet))
-        title = item['title']
-        m_words.extend(analyzer.pick_verbs(title))
-        m_words.extend(analyzer.pick_sahens(title))
-    return m_words  # => ['旅行', '対策', 'する']
-
-
-def to_link_texts_title(items):
-    results = []
-    words = Constants.TASK_WORDS
-    for item in items:
-        scraper = Scraper()
-        texts = scraper.find_words(words, item['link'])
-        if texts == []:
-            continue
-        else:
-            page = {'link': item['link'], 'texts': texts, 'title': item['title']}
-            results.extend(page)
-    return results
 
 
 @route('/free_scraping_results', method='POST')
 def free_scraping_results():
     url = request.forms.decode().get('url')
-    scraper = Scraper()
-    items = scraper.fetch_something(url)
+    page = WebPage(url)
+    items = page.pick_something()
     return free_scraping_template.render(items=items)
 
 

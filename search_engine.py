@@ -6,6 +6,7 @@ import pdb
 import my_keys
 import constants
 import requests
+from web_page import WebPage
 
 
 class SearchEngine:
@@ -38,7 +39,13 @@ class SearchEngine:
                 start = json_body['queries']['nextPage'][0]['startIndex']
             except:
                 items.extend({'link': '#', 'title': '検索できませんでした'})
-        return items  #=> [{'link': 'http://...', 'title': 'ページは'}, {...}...]
+        pages = []
+        for item in items:
+            page = WebPage(item['link'])
+            page.title = item['title']
+            page.snippet = item['snippet']
+            pages.append(page)
+        return pages  # => [{'link': 'http://...', 'title': 'ページは'}, {...}...]
 
     def bing_search(self, query):
         NUM = 1
