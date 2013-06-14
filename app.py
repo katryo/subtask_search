@@ -99,6 +99,7 @@ def query_expansion():
         v_and_s.extend(ad.pick_verbs(ad.snippet))
         v_and_s.extend(ad.pick_sahens(ad.snippet))
     ranked_items = to_ranked_items(v_and_s)
+    ranked_items.insert(0, {'name': 'まとめ', 'count': 100})
     normalized_query = normalize_query(query)
     query_words = normalized_query.split(' ')
     page_set = set()  # set型は重複をなくすため
